@@ -2,11 +2,14 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        xs: { min: "520px" },
+      },
+    },
   },
-  plugins: [require("daisyui")], 
+  plugins: [require("daisyui")],
   daisyui: {
     themes: ["light", "dark"],
   },
-}; 
-   
+};

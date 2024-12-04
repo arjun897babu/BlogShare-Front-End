@@ -2,10 +2,15 @@ import { Link } from "react-router-dom"
 import Password from "../../components/Password"
 import Label from "../../components/Label"
 import Input from "../../components/Input"
+import { LoginObj } from "./types"
+import { useZodForm } from "../../custom hook/UseZodForm"
+import { loginSchema, logniFormSchemaType } from "../../utility/zodSchem"
+import ErrorDiv from "../../components/ErrorDiv"
 
 function Login() {
-    async function handleSubmit(){
-
+    const { register, handleSubmit, formState: { errors } } = useZodForm(loginSchema, LoginObj)
+    function onSubmit(data: logniFormSchemaType) {
+        console.log('login data :', data)
     }
 
     return (
@@ -15,17 +20,19 @@ function Login() {
                     <h2 className="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-8 lg:text-3xl">Login</h2>
                     <form
                         className="mx-auto max-w-lg rounded-lg border"
-                        onSubmit={handleSubmit}>
+                        onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-4 p-4 md:p-8">
-                            <div className="form-control">
+                            <div className="form-control relative ">
                                 <Label label="email" />
-                                <Input text="email"/>
+                                <Input text="email" {...register('email')} />
+                                {errors && errors.email?.message && <ErrorDiv message={errors.email.message} />}
                             </div>
-                            <div className="form-control">
+                            <div className="form-control relative ">
                                 <Label label="password" />
-                                <Password text="password" />
+                                <Password text="password" {...register('password')} />
+                                {errors && errors.password?.message && <ErrorDiv message={errors.password.message} />}
                             </div>
-                            <button className="btn btn-neutral" type="submit">Log in</button>
+                            <button className="btn btn-neutral mt-5" type="submit">Log in</button>
                             {/* <progress className="progress "></progress> */}
                             <div className="divider"></div>
                         </div>

@@ -5,6 +5,6 @@ type LableProps = {
 }
 
 const Label: React.FC<LableProps> = ({ label }) => {
-    return <label htmlFor="email" className="label capitalize">{label}</label>
+    return <label htmlFor="email" className="label capitalize font-semibold">{label}</label>
 }
 export default Label

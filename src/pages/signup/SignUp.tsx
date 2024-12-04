@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 import Password from "../../components/Password";
 import Label from "../../components/Label";
-import { FormEvent } from "react";
 import Input from "../../components/Input";
+import { signupObj } from "./types";
+import { useZodForm } from "../../custom hook/UseZodForm";
+import { signUpFormSchemaType, signupSchema } from "../../utility/zodSchem";
+import ErrorDiv from "../../components/ErrorDiv";
+
 
 function Signup() {
-    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-    }
+
+    const { register, handleSubmit, formState: { errors } } = useZodForm(signupSchema, signupObj)
+    const onSubmit = (data: signUpFormSchemaType) => {
+
+    };
+
 
     return (
         <div className="py-6 sm:py-8 lg:py-10">
@@ -15,22 +22,29 @@ function Signup() {
                 <h2 className="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-8 lg:text-3xl">Sign Up</h2>
                 <form
                     className="mx-auto max-w-lg rounded-lg border"
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit(onSubmit)}
                 >
                     <div className="flex flex-col gap-4 p-4 md:p-8">
-                        <div className="form-control">
+                        <div className="form-control relative">
+                            <Label label="name" />
+                            <Input text="text" {...register('name')} />
+                            {errors && errors.name?.message && <ErrorDiv message={errors.name.message} />}
+                        </div>
+                        <div className="form-control relative">
                             <Label label="Email" />
-                            <Input text="email" />
+                            <Input text="email" {...register('email')} />
+                            {errors && errors.email?.message && <ErrorDiv message={errors.email.message} />}
                         </div>
-
-                        <div className="form-control">
+                        <div className="form-control relative">
                             <Label label="Password" />
-                            <Password text="password" />
+                            <Password text="password"  {...register('password')} />
+                            {errors && errors.password?.message && <ErrorDiv message={errors.password.message} />}
                         </div>
 
-                        <div className="form-control">
+                        <div className="form-control relative">
                             <Label label="Confirm Password" />
-                            <Password text="confirm_password" />
+                            <Password text="confirm_password" {...register('confirm_password')} />
+                            {errors && errors.confirm_password?.message && <ErrorDiv message={errors.confirm_password.message} />}
                         </div>
 
                         <button className="btn btn-neutral w-full mt-4" type="submit">

@@ -2,15 +2,42 @@ import { Link } from "react-router-dom"
 import Password from "../../components/Password"
 import Label from "../../components/Label"
 import Input from "../../components/Input"
-import { LoginObj } from "./types"
+import { ILogin, LoginObj } from "./types"
 import { useZodForm } from "../../custom hook/UseZodForm"
 import { loginSchema, logniFormSchemaType } from "../../utility/zodSchem"
 import ErrorDiv from "../../components/ErrorDiv"
+import useErrorObject from "../../custom hook/useErrorObject"
+import serverInstance, { endPoint } from "../../service/api"
+import { ResponseStatus } from "../../utility/enum"
+import { useUser } from "../../custom hook/useUser"
 
 function Login() {
-    const { register, handleSubmit, formState: { errors } } = useZodForm(loginSchema, LoginObj)
-    function onSubmit(data: logniFormSchemaType) {
-        console.log('login data :', data)
+    const { setUserState } = useUser()
+    const { register, handleSubmit, setError, formState: { errors } } = useZodForm(loginSchema, LoginObj)
+
+    function changeErrorCB(key: string, message: string) {
+        setError(key as keyof logniFormSchemaType, { message })
+    }
+
+    const changeError = useErrorObject(changeErrorCB)
+
+    async function onSubmit(data: logniFormSchemaType) {
+        try {
+            const response = (await serverInstance.post<ILogin>(endPoint.login, data)).data
+            if (response.status === ResponseStatus.SUCCESS) {
+                const { user, token } = response.data
+                setUserState((prev) => ({
+                    ...prev,
+                    email: user.email,
+                    name: user.name,
+                    token: token,
+                    uId: user.uId,
+                    isAuthed: true
+                }))
+            }
+        } catch (error) {
+            changeError(error)
+        }
     }
 
     return (

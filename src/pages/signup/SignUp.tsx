@@ -2,16 +2,34 @@ import { Link } from "react-router-dom";
 import Password from "../../components/Password";
 import Label from "../../components/Label";
 import Input from "../../components/Input";
-import { signupObj } from "./types";
+import { ICreateUser, signupObj } from "./types";
 import { useZodForm } from "../../custom hook/UseZodForm";
 import { signUpFormSchemaType, signupSchema } from "../../utility/zodSchem";
 import ErrorDiv from "../../components/ErrorDiv";
+import serverInstance, { endPoint } from "../../service/api";
+import { ResponseStatus } from "../../utility/enum";
+import useErrorObject from "../../custom hook/useErrorObject";
 
 
 function Signup() {
 
-    const { register, handleSubmit, formState: { errors } } = useZodForm(signupSchema, signupObj)
-    const onSubmit = (data: signUpFormSchemaType) => {
+    const { register, handleSubmit, setError, formState: { errors } } = useZodForm(signupSchema, signupObj)
+
+    function changeErrorCB(key: string, message: string) {
+        setError(key as keyof signUpFormSchemaType, { message })
+    }
+
+    const changeError = useErrorObject(changeErrorCB)
+
+    const onSubmit = async (data: signUpFormSchemaType) => {
+        try {
+            const response = (await serverInstance.post<ICreateUser>(endPoint.signup, data)).data
+            if (response.status === ResponseStatus.SUCCESS) {
+
+            }
+        } catch (error) {
+            changeError(error)
+        }
 
     };
 

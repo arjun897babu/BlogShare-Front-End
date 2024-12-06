@@ -1,13 +1,22 @@
 import { Link, Outlet } from 'react-router-dom'
 import appLogo from '/blogshareIcon.png'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useUser } from '../custom hook/useUser'
 function Home() {
-    const [theme, setTheme] = useState('light')
+    const { userState,setUserState } = useUser()
+    const [theme, setTheme] = useState(userState.theme)
+    
     function changeTheme() {
-         const newTheme = theme === "light" ? "dark" : "light";
+        const newTheme = theme === "light" ? "dark" : "light";
         setTheme(newTheme);
+        setUserState((prev) => ({ ...prev, theme: newTheme }))
         document.documentElement.setAttribute("data-theme", newTheme)
     }
+    
+    useEffect(()=>{
+        setTheme(userState.theme)
+        document.documentElement.setAttribute("data-theme", userState.theme)
+    },[theme])
 
     return (
         <>

@@ -1,7 +1,7 @@
 import React, { useEffect,  useState } from "react"
 import Pagination from "../../components/Pagination"
 import { useLocation } from "react-router-dom";
-import serverInstance, { endPoint } from "../../service/api";
+import {serverInstance, endPoint } from "../../service/api";
 import {  IGetAllBlogs, SingleBlog } from "../../utility/types";
 import { ResponseStatus } from "../../utility/enum";
 const BlogCard = React.lazy(() => import('../../components/BlogsCard'))

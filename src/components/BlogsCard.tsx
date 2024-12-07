@@ -1,7 +1,7 @@
 import { FC, MouseEvent, useEffect, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { ErrorObject, IResponse, SingleBlog } from "../utility/types"
-import serverInstance, { endPoint } from "../service/api";
+import  {serverInstance, endPoint } from "../service/api";
 import { handleAxiosError, isApiError } from "../utility/validator-helper";
 import { useUser } from "../custom hook/useUser";
 import { Action, ResponseStatus } from "../utility/enum";
@@ -19,7 +19,7 @@ const BlogCard: FC<IBlogCardListpProps> = ({ blogData,deleteCB}) => {
     const navigate = useNavigate();
     const { userState } = useUser()
 
-
+console.log(userState,'this is user state')
     useEffect(() => {
         if (location.pathname === '/') {
             setIsHome(true)
@@ -36,7 +36,7 @@ const BlogCard: FC<IBlogCardListpProps> = ({ blogData,deleteCB}) => {
 
         try {
             const imageId = blogData.file&& 'publicId' in blogData.file ?blogData.file.publicId:undefined
-            
+
             const response = (await serverInstance.delete<IResponse>(endPoint.editBlog(blogData.uId),{params:imageId})).data
             if (response.status === ResponseStatus.SUCCESS) {
                 deleteCB(blogData.uId)

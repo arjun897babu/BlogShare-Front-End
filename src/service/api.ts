@@ -1,5 +1,4 @@
 import axios from "axios";
-import { User } from "../utility/types";
 
 const { VITE_API_ROUTE, VITE_APP } = import.meta.env;
 
@@ -15,6 +14,12 @@ export const endPoint = {
 };
 
 const serverInstance = axios.create({
+  withCredentials: true,
+  baseURL: VITE_API_ROUTE,
+  timeout:6*1000
+});
+
+const authInstance = axios.create({
   withCredentials: true,
   baseURL: VITE_API_ROUTE,
   timeout:6*1000
@@ -39,4 +44,4 @@ serverInstance.interceptors.request.use(
   }
 );
 
-export default serverInstance;
+export  {serverInstance,authInstance};

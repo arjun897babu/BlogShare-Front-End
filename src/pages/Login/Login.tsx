@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, replace, useNavigate } from "react-router-dom"
 import Password from "../../components/Password"
 import Label from "../../components/Label"
 import Input from "../../components/Input"
@@ -7,13 +7,23 @@ import { useZodForm } from "../../custom hook/UseZodForm"
 import { loginSchema, logniFormSchemaType } from "../../utility/zodSchem"
 import ErrorDiv from "../../components/ErrorDiv"
 import useErrorObject from "../../custom hook/useErrorObject"
-import serverInstance, { endPoint } from "../../service/api"
+import { authInstance, endPoint } from "../../service/api"
 import { ResponseStatus } from "../../utility/enum"
 import { useUser } from "../../custom hook/useUser"
+import { useEffect } from "react"
 
 
 function Login() {
-    const { setUserState } = useUser()
+
+
+    const { userState, setUserState } = useUser()
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (userState.isAuthed) {
+            navigate('/', { replace: true })
+        }
+    }, []);
+
     const { register, handleSubmit, setError, formState: { errors } } = useZodForm(loginSchema, LoginObj)
 
     function changeErrorCB(key: string, message: string) {
@@ -24,7 +34,8 @@ function Login() {
 
     async function onSubmit(data: logniFormSchemaType) {
         try {
-            const response = (await serverInstance.post<ILogin>(endPoint.login, data)).data
+            console.log('form is submitted')
+            const response = (await authInstance.post<ILogin>(endPoint.login, data)).data
             if (response.status === ResponseStatus.SUCCESS) {
                 const { user, token } = response.data
                 setUserState((prev) => ({
@@ -34,11 +45,16 @@ function Login() {
                     token: token,
                     uId: user.uId,
                     isAuthed: true
-                }))
+                }));
+                navigate('/', { replace: true })
             }
         } catch (error) {
             changeError(error)
         }
+    }
+
+    if (userState.isAuthed) {
+        return null;
     }
 
     return (

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Password from "../../components/Password";
 import Label from "../../components/Label";
 import Input from "../../components/Input";
@@ -6,12 +6,17 @@ import { ICreateUser, signupObj } from "./types";
 import { useZodForm } from "../../custom hook/UseZodForm";
 import { signUpFormSchemaType, signupSchema } from "../../utility/zodSchem";
 import ErrorDiv from "../../components/ErrorDiv";
-import serverInstance, { endPoint } from "../../service/api";
+import { authInstance, endPoint } from "../../service/api";
 import { ResponseStatus } from "../../utility/enum";
 import useErrorObject from "../../custom hook/useErrorObject";
+import { useUser } from "../../custom hook/useUser";
+import { useEffect } from "react";
 
 
 function Signup() {
+
+    const navigate = useNavigate();
+    const { userState } = useUser()
 
     const { register, handleSubmit, setError, formState: { errors } } = useZodForm(signupSchema, signupObj)
 
@@ -23,15 +28,26 @@ function Signup() {
 
     const onSubmit = async (data: signUpFormSchemaType) => {
         try {
-            const response = (await serverInstance.post<ICreateUser>(endPoint.signup, data)).data
+            const response = (await authInstance.post<ICreateUser>(endPoint.signup, data)).data
             if (response.status === ResponseStatus.SUCCESS) {
-
+                navigate('/login')
             }
         } catch (error) {
             changeError(error)
         }
 
     };
+
+    useEffect(() => {
+        if (userState.isAuthed) {
+            navigate('/', { replace: true })
+        }
+    }, [])
+
+    
+    if (userState.isAuthed) {
+        return null;
+    }
 
 
     return (

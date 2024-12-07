@@ -2,9 +2,10 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import appLogo from '/blogshareIcon.png'
 import { MouseEvent, useEffect, useState } from 'react'
 import { useUser } from '../custom hook/useUser'
-import serverInstance, { endPoint } from '../service/api'
+import { endPoint, serverInstance } from '../service/api'
 import { IResponse } from '../utility/types'
 import { ResponseStatus } from '../utility/enum'
+import { VITE_APP } from '../service/context'
 function Home() {
     const { userState, setUserState } = useUser()
     const [theme, setTheme] = useState(userState.theme)
@@ -38,14 +39,7 @@ function Home() {
         try {
             const response = (await serverInstance.post<IResponse>(endPoint.logout)).data
             if (response.status === ResponseStatus.SUCCESS) {
-                setUserState((prev) => ({
-                    ...prev,
-                    isAuthed: false,
-                    token: '',
-                    email: '',
-                    name: '',
-                    uId: ''
-                }));
+                localStorage.removeItem(VITE_APP)
                 navigate('/login', { replace: true })
             }
         } catch (error) {
@@ -62,7 +56,7 @@ function Home() {
                 <div className="drawer-content flex flex-col">
                     {/* Navbar */}
                     <header className="navbar w-full py-4 md:py-8 ">
-                        <div className="flex-none xs:hidden">
+                        <div className="flex-none sm:hidden">
                             <label htmlFor="my-drawer-3" aria-label="open sidebar" className="btn btn-square btn-ghost">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -96,12 +90,12 @@ function Home() {
 
                         </div>
 
-                        <div className="hidden flex-none xs:block ">
+                        <div className="hidden flex-none sm:block ">
                             <ul className="menu menu-horizontal  gap-4">
-                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'><Link to={`/blogs`}>My Blog</Link></li>
-                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'><Link to={'/write'}>Create Blog</Link></li>
+                                <li className='p-1   font-bold  transition duration-100 hover:text-emerald-500'><Link to={`/blogs`}>My Blog</Link></li>
+                                <li className='p-1   font-bold  transition duration-100 hover:text-emerald-500'><Link to={'/write'}>Create Blog</Link></li>
                                 <div className="dropdown dropdown-bottom dropdown-end">
-                                    <div tabIndex={0} role="button" className="btn btn-error rotate-90">
+                                    <div tabIndex={0} role="button" className="btn btn-error btn-sm relative top-1 rotate-90 ">
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>

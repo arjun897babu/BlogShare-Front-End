@@ -4,7 +4,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     text: "password" | "confirm_password";
 };
 
-const Input = forwardRef<HTMLInputElement, InputProps>(({ text, ...props }, ref) => {
+const Password = forwardRef<HTMLInputElement, InputProps>(({ text, ...props }, ref) => {
     return (
         <input
             ref={ref}
@@ -16,4 +16,4 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({ text, ...props }, ref)
     );
 });
 
-export default Input;
+export default Password;

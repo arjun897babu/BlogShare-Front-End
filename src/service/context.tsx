@@ -1,6 +1,9 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react"
 import { User } from "../utility/types"
- 
+const {
+    VITE_APP
+}  = import.meta.env
+
 const userInitObj: Pick<User, 'email' | 'isAuthed' | 'name' | 'theme' | 'token' | 'uId'> = {
     email: '',
     isAuthed: false,
@@ -20,13 +23,12 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [userState, setUserState] = useState(() => {
-        const storedUser = localStorage.getItem('blogShare');
-        console.log(storedUser)
+        const storedUser = localStorage.getItem(VITE_APP);
         return storedUser ? JSON.parse(storedUser) : userInitObj;
     });
-    
+
     useEffect(() => {
-        localStorage.setItem('blogShare', JSON.stringify(userState))
+        localStorage.setItem(VITE_APP, JSON.stringify(userState))
     }, [userState])
 
     return (

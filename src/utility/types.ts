@@ -1,3 +1,4 @@
+import { IUserBase } from "../pages/signup/types";
 import { ResponseStatus } from "./enum";
 export type ErrorObject = { [field: string]: string };
 
@@ -16,9 +17,39 @@ export interface User {
   uId: string;
 }
 
-export interface Blog {}
+export interface Blog {
+  uId: string;
+  userId: string;
+  title: string;
+  content: string;
+  file?: { publicId: string; url: string } | File; // either a string URL or a image File
+}
 
 export interface IResponse {
   status: ResponseStatus;
   message: string;
+}
+
+
+export interface SingleBlog extends Blog {
+  user: IUserBase;
+  createdAt: string;
+}
+
+export interface BlogResponse extends IResponse {
+  data: {
+    blog: SingleBlog;
+  };
+}
+
+export interface IBlogCU extends IResponse{
+  data:{
+    blog:Blog
+  }
+}
+
+export interface IGetAllBlogs extends IResponse {
+  data: {
+    blog: SingleBlog[];
+  };
 }

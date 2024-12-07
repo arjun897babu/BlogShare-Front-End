@@ -1,22 +1,59 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import appLogo from '/blogshareIcon.png'
-import { useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import { useUser } from '../custom hook/useUser'
+import serverInstance, { endPoint } from '../service/api'
+import { IResponse } from '../utility/types'
+import { ResponseStatus } from '../utility/enum'
 function Home() {
-    const { userState,setUserState } = useUser()
+    const { userState, setUserState } = useUser()
     const [theme, setTheme] = useState(userState.theme)
-    
+    const location = useLocation()
+    const navigate = useNavigate()
+    const [isHome, setIsHome] = useState(true)
+    const [loading, setLoading] = useState(false)
     function changeTheme() {
         const newTheme = theme === "light" ? "dark" : "light";
         setTheme(newTheme);
         setUserState((prev) => ({ ...prev, theme: newTheme }))
         document.documentElement.setAttribute("data-theme", newTheme)
     }
-    
-    useEffect(()=>{
+
+    useEffect(() => {
         setTheme(userState.theme)
         document.documentElement.setAttribute("data-theme", userState.theme)
-    },[theme])
+    }, [theme])
+
+    useEffect(() => {
+        if (location.pathname !== '/') {
+            setIsHome(false)
+        } else {
+            setIsHome(true)
+        }
+    }, [location.pathname])
+
+    async function logout(e: MouseEvent<HTMLButtonElement>) {
+        setLoading(true)
+        e.preventDefault()
+        try {
+            const response = (await serverInstance.post<IResponse>(endPoint.logout)).data
+            if (response.status === ResponseStatus.SUCCESS) {
+                setUserState((prev) => ({
+                    ...prev,
+                    isAuthed: false,
+                    token: '',
+                    email: '',
+                    name: '',
+                    uId: ''
+                }));
+                navigate('/login', { replace: true })
+            }
+        } catch (error) {
+
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <>
@@ -40,13 +77,16 @@ function Home() {
                                 </svg>
                             </label>
                         </div>
+
                         <div className="flex items-center gap-2 text-black  font-bold text-lg md:text-3xl w-full">
                             <img
                                 src={appLogo}
                                 alt="BlogShare Logo"
                                 className="w-8 h-8 xs:w-10 xs:h-10 object-contain xs:ml-2"
                             />
-                            BlogShare
+                            <Link to={'/'}>
+                                BlogShare
+                            </Link>
                             <input
                                 className="focus:outline-none bg-gray-50 border border-gray-200 rounded-lg text-xs xs:text-sm py-2 font-normal px-2"
                                 placeholder="search"
@@ -58,8 +98,8 @@ function Home() {
 
                         <div className="hidden flex-none xs:block ">
                             <ul className="menu menu-horizontal  gap-4">
-                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'>My Blog</li>
-                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'>Create Blog</li>
+                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'><Link to={`/blogs`}>My Blog</Link></li>
+                                <li className='p-3  font-bold  btn  transition duration-100 hover:text-emerald-500'><Link to={'/write'}>Create Blog</Link></li>
                                 <div className="dropdown dropdown-bottom dropdown-end">
                                     <div tabIndex={0} role="button" className="btn btn-error rotate-90">
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>
@@ -75,7 +115,7 @@ function Home() {
                                                 checked={theme === "dark"}
                                             />
                                         </li>
-                                        <li><button className='btn btn-neutral'>Log out</button></li>
+                                        <li><button onClick={logout} className='btn btn-neutral'>Log out</button></li>
                                     </ul>
                                 </div>
                             </ul>
@@ -87,13 +127,21 @@ function Home() {
                     <label htmlFor="my-drawer-3" aria-label="close sidebar" className="drawer-overlay"></label>
                     <ul className="menu bg-emerald-200 min-h-full w-80 p-4">
                         <li><Link to={'/'} >Home</Link></li>
-                        <li><Link to={''} >My Blog</Link></li>
-                        <li><Link to={''} >Create Blog</Link></li>
-                        <li><button className='btn btn-neutral mt-10' type="button">Log out</button></li>
+                        <li><Link to={`/blogs`}>My Blog</Link></li>
+                        <li><Link to={'/write'}>Create Blog</Link></li>
+                        <li>
+                            <input
+                                type="checkbox"
+                                className="toggle toggle-sm ml-4"
+                                onChange={changeTheme}
+                                checked={theme === "dark"}
+                            />
+                        </li>
+                        <li><button onClick={logout} className='btn btn-neutral mt-10' type="button">Log out</button></li>
                     </ul>
                 </div>
             </div>
-            <section className='mx-auto max-w-screen-2xl px-4 md:px-8 '>
+            <section className={`${isHome ? 'mx-auto max-w-screen-2xl px-4 md:px-8' : 'hidden'}`}>
                 <div className="mb-8 flex flex-wrap justify-between md:mb-16">
                     {/* left section with heading */}
                     <div className=" xs:relative top-16 mb-6 flex w-full flex-col justify-center sm:mb-12 lg:mb-0 xs:w-5/12 lg:pb-24 lg:pt-48">

@@ -7,10 +7,10 @@ import { UserProvider } from './service/context.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <StrictMode>
+    {/* <StrictMode> */}
       <UserProvider>
         <App />
       </UserProvider>
-    </StrictMode>,
+    {/* </StrictMode>, */}
   </BrowserRouter>
 )

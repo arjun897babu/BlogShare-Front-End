@@ -6,7 +6,7 @@ type ErrorDivProp = {
 
 const ErrorDiv: FC<ErrorDivProp> = ({ message }) => {
     return <small
-        className={`text-sm capitalize text-red-600 font-semibold absolute -bottom-6 left-2 `}
+        className={`text-xs capitalize text-red-600 font-semibold absolute -bottom-6 left-2 `}
     >{message}</small>
 }
 export default ErrorDiv

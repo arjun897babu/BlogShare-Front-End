@@ -20,7 +20,7 @@ const App = () => {
         <Route path="/" element={<Home />} >{/* home page */}
           <Route path="" element={<BlogCardList />} /> {/* all blogs */}
           <Route path="/write" element={<BlogEditor />} /> {/* blog editor */}
-          <Route path="/blogs/:blogId" element={<Blog />} /> {/* single blog page */}
+          <Route path="/blog/:blogId" element={<Blog />} /> {/* single blog page */}
           <Route path="/blogs" element={<BlogCardList />} /> {/* blog card list for a single user */}
         </Route>
       </Route>

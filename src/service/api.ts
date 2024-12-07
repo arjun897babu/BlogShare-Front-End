@@ -7,7 +7,7 @@ export const endPoint = {
   signup: "/auth/signup",
   logout: "/auth/logout",
   blogs: "/blogs",
-  singleBlog: (blogId: string) => `/blogs/${blogId}`,
+  singleBlog: (blogId: string) => `/blogs/blog/${blogId}`,
   write: "/blogs/user/blog", //create specif to user
   getUserBlog: "/blogs/user/blog",
   editBlog: (blogId:string)=>`/blogs/user/${blogId}`, //edit and delete a specif blog

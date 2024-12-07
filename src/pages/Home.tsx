@@ -39,7 +39,18 @@ function Home() {
         try {
             const response = (await serverInstance.post<IResponse>(endPoint.logout)).data
             if (response.status === ResponseStatus.SUCCESS) {
-                localStorage.removeItem(VITE_APP)
+                setTimeout(() => {
+                    console.log('executed')
+                    localStorage.removeItem(VITE_APP)
+                },0)
+                setUserState((prev)=>({
+                    ...prev,
+                    email:'',
+                    name:'',
+                    token:'',
+                    uId:'',
+                    isAuthed:false, 
+                }))
                 navigate('/login', { replace: true })
             }
         } catch (error) {
@@ -95,7 +106,7 @@ function Home() {
                                 <li className='p-1   font-bold  transition duration-100 hover:text-emerald-500'><Link to={`/blogs`}>My Blog</Link></li>
                                 <li className='p-1   font-bold  transition duration-100 hover:text-emerald-500'><Link to={'/write'}>Create Blog</Link></li>
                                 <div className="dropdown dropdown-bottom dropdown-end">
-                                    <div tabIndex={0} role="button" className="btn btn-error btn-sm relative top-1 rotate-90 ">
+                                    <div tabIndex={0} role="button" className="btn btn-accent opacity-45 btn-sm relative top-1 rotate-90 ">
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>
                                         <span className="block w-0.5 h-1 bg-current rounded-full"></span>

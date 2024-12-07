@@ -33,7 +33,7 @@ export interface IResponse {
 
 export interface SingleBlog extends Blog {
   user: IUserBase;
-  createdAt: string;
+   createdAt: string;
 }
 
 export interface BlogResponse extends IResponse {

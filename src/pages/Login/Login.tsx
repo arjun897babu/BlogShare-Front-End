@@ -10,13 +10,15 @@ import useErrorObject from "../../custom hook/useErrorObject"
 import { authInstance, endPoint } from "../../service/api"
 import { ResponseStatus } from "../../utility/enum"
 import { useUser } from "../../custom hook/useUser"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { ButtonLoader } from "../../components/ButtonLoader"
+import Toast from "../../components/Toast"
 
 
 function Login() {
 
 
-    const { userState, setUserState } = useUser()
+    const { userState, setUserState, toast } = useUser()
     const navigate = useNavigate()
     useEffect(() => {
         if (userState.isAuthed) {
@@ -24,17 +26,19 @@ function Login() {
         }
     }, []);
 
+    const [loading, setLoading] = useState(false);
+
     const { register, handleSubmit, setError, formState: { errors } } = useZodForm(loginSchema, LoginObj)
 
     function changeErrorCB(key: string, message: string) {
         setError(key as keyof logniFormSchemaType, { message })
     }
 
-    const changeError = useErrorObject(changeErrorCB)
+    const handleApiError = useErrorObject(changeErrorCB)
 
     async function onSubmit(data: logniFormSchemaType) {
+        setLoading(true)
         try {
-            console.log('form is submitted')
             const response = (await authInstance.post<ILogin>(endPoint.login, data)).data
             if (response.status === ResponseStatus.SUCCESS) {
                 const { user, token } = response.data
@@ -49,7 +53,9 @@ function Login() {
                 navigate('/', { replace: true })
             }
         } catch (error) {
-            changeError(error)
+            handleApiError(error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -76,7 +82,7 @@ function Login() {
                                 <Password text="password" {...register('password')} />
                                 {errors && errors.password?.message && <ErrorDiv message={errors.password.message} />}
                             </div>
-                            <button className="btn btn-neutral mt-5" type="submit">Log in</button>
+                            <button className={`btn btn-neutral mt-5`} type="submit">{loading ? <ButtonLoader btnSize="sm" loader="spinner" /> : 'Log in'}</button>
                             {/* <progress className="progress "></progress> */}
                             <div className="divider"></div>
                         </div>
@@ -93,6 +99,10 @@ function Login() {
                         </div>
                     </form>
                 </div>
+                {
+                    toast &&
+                    <Toast message={toast.message} status={toast.status} />
+                }
             </div>
         </>
     )

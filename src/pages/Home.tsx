@@ -5,25 +5,16 @@ import { useUser } from '../custom hook/useUser'
 import { endPoint, serverInstance } from '../service/api'
 import { IResponse } from '../utility/types'
 import { ResponseStatus } from '../utility/enum'
-import { VITE_APP } from '../service/context'
+import { userInitObj, VITE_APP } from '../service/context'
+import { ButtonLoader } from '../components/ButtonLoader'
 function Home() {
     const { userState, setUserState } = useUser()
-    const [theme, setTheme] = useState(userState.theme)
     const location = useLocation()
     const navigate = useNavigate()
     const [isHome, setIsHome] = useState(true)
     const [loading, setLoading] = useState(false)
-    function changeTheme() {
-        const newTheme = theme === "light" ? "dark" : "light";
-        setTheme(newTheme);
-        setUserState((prev) => ({ ...prev, theme: newTheme }))
-        document.documentElement.setAttribute("data-theme", newTheme)
-    }
 
-    useEffect(() => {
-        setTheme(userState.theme)
-        document.documentElement.setAttribute("data-theme", userState.theme)
-    }, [theme])
+
 
     useEffect(() => {
         if (location.pathname !== '/') {
@@ -39,19 +30,9 @@ function Home() {
         try {
             const response = (await serverInstance.post<IResponse>(endPoint.logout)).data
             if (response.status === ResponseStatus.SUCCESS) {
-                setTimeout(() => {
-                    console.log('executed')
-                    localStorage.removeItem(VITE_APP)
-                },0)
-                setUserState((prev)=>({
-                    ...prev,
-                    email:'',
-                    name:'',
-                    token:'',
-                    uId:'',
-                    isAuthed:false, 
-                }))
-                navigate('/login', { replace: true })
+                localStorage.removeItem(VITE_APP);
+                setUserState(userInitObj);
+                navigate('/login', { replace: true });
             }
         } catch (error) {
 
@@ -113,14 +94,17 @@ function Home() {
                                     </div>
                                     <ul tabIndex={0} className="dropdown-content bg-emerald-200 menu gap-3 rounded-box z-40 w-52 p-2 shadow">
                                         <li>
-                                            <input
-                                                type="checkbox"
-                                                className="toggle toggle-sm"
-                                                onChange={changeTheme}
-                                                checked={theme === "dark"}
-                                            />
+                                            {
+                                                loading ?
+                                                    (
+                                                        <ButtonLoader btnSize='sm' loader='spinner' />
+                                                    )
+                                                    :
+                                                    (
+                                                        <button onClick={logout} className='btn btn-neutral'>Log out</button>
+                                                    )
+                                            }
                                         </li>
-                                        <li><button onClick={logout} className='btn btn-neutral'>Log out</button></li>
                                     </ul>
                                 </div>
                             </ul>
@@ -134,14 +118,6 @@ function Home() {
                         <li><Link to={'/'} >Home</Link></li>
                         <li><Link to={`/blogs`}>My Blog</Link></li>
                         <li><Link to={'/write'}>Create Blog</Link></li>
-                        <li>
-                            <input
-                                type="checkbox"
-                                className="toggle toggle-sm ml-4"
-                                onChange={changeTheme}
-                                checked={theme === "dark"}
-                            />
-                        </li>
                         <li><button onClick={logout} className='btn btn-neutral mt-10' type="button">Log out</button></li>
                     </ul>
                 </div>

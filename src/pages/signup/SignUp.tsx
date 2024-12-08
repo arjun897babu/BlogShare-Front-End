@@ -10,13 +10,16 @@ import { authInstance, endPoint } from "../../service/api";
 import { ResponseStatus } from "../../utility/enum";
 import useErrorObject from "../../custom hook/useErrorObject";
 import { useUser } from "../../custom hook/useUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Toast from "../../components/Toast";
+import { ButtonLoader } from "../../components/ButtonLoader";
 
 
 function Signup() {
 
     const navigate = useNavigate();
-    const { userState } = useUser()
+    const { userState, toast } = useUser()
+    const [loading, setLoading] = useState(false);
 
     const { register, handleSubmit, setError, formState: { errors } } = useZodForm(signupSchema, signupObj)
 
@@ -24,16 +27,19 @@ function Signup() {
         setError(key as keyof signUpFormSchemaType, { message })
     }
 
-    const changeError = useErrorObject(changeErrorCB)
+    const handleApiError = useErrorObject(changeErrorCB)
 
     const onSubmit = async (data: signUpFormSchemaType) => {
+        setLoading(true)
         try {
             const response = (await authInstance.post<ICreateUser>(endPoint.signup, data)).data
             if (response.status === ResponseStatus.SUCCESS) {
                 navigate('/login')
             }
         } catch (error) {
-            changeError(error)
+            handleApiError(error)
+        } finally {
+            setLoading(false)
         }
 
     };
@@ -44,7 +50,7 @@ function Signup() {
         }
     }, [])
 
-    
+
     if (userState.isAuthed) {
         return null;
     }
@@ -82,7 +88,7 @@ function Signup() {
                         </div>
 
                         <button className="btn btn-neutral w-full mt-4" type="submit">
-                            Sign up
+                            {loading ? <ButtonLoader btnSize="sm" loader="spinner" /> : 'Sign Up'}
                         </button>
                         <div className="divider my-4"></div>
                     </div>
@@ -99,6 +105,10 @@ function Signup() {
                     </div>
                 </form>
             </div>
+            {
+                toast &&
+                <Toast message={toast.message} status={toast.status} />
+            }
         </div>
     );
 }

@@ -1,15 +1,21 @@
-import React, { useEffect,  useState } from "react"
+import React, { useEffect, useState } from "react"
 import Pagination from "../../components/Pagination"
 import { useLocation } from "react-router-dom";
-import {serverInstance, endPoint } from "../../service/api";
-import {  IGetAllBlogs, SingleBlog } from "../../utility/types";
+import { serverInstance, endPoint } from "../../service/api";
+import { IGetAllBlogs, SingleBlog } from "../../utility/types";
 import { ResponseStatus } from "../../utility/enum";
+import useErrorObject from "../../custom hook/useErrorObject";
+import Toast from "../../components/Toast";
+import { useUser } from "../../custom hook/useUser";
 const BlogCard = React.lazy(() => import('../../components/BlogsCard'))
 
 
 const BlogCardList = () => {
+    const handleApiError = useErrorObject();
+    const { toast } = useUser()
     const [pageNumber, setPageNumber] = useState(1);
     const [totalPage, setTotalPage] = useState(0);
+
     const [blogs, setBlogs] = useState<SingleBlog[] | null>(null)
     const [isHome, setIsHome] = useState(true)
 
@@ -27,7 +33,7 @@ const BlogCardList = () => {
                 setBlogs(response.data.blog)
             }
         } catch (error) {
-            console.log(error);
+            handleApiError(error)
         }
     }
 
@@ -52,21 +58,29 @@ const BlogCardList = () => {
         })
     }
     return (
-        <div className={`${isHome ? 'mt-28' : 'mt-2'}`}>
-            <h1 className="text-2xl xs:text-5xl text-center font-extrabold capitalize pb-4 title">
-                {isHome ? " Updates, ideas, and resources" : 'My Blogs'}
-            </h1>
-            <div className="w-full grid grid-cols-1 sm:grid-cols-3   p-4 gap-6">
-                {blogs && blogs.map((blog) => (
-                    <BlogCard key={blog.uId} blogData={blog} deleteCB={deleteCB} />
-                ))}
-            </div>
-            {totalPage > 0 &&
-                <div className="flex justify-center">
-                    <Pagination changePage={changePage} pageNumber={pageNumber} totalPage={totalPage} />
+        <>
+
+            <div className={`${isHome ? 'mt-28' : 'mt-2'}`}>
+                <h1 className="text-2xl xs:text-5xl text-center font-extrabold capitalize pb-4 title">
+                    {isHome ? " Updates, ideas, and resources" : 'My Blogs'}
+                </h1>
+                <div className="w-full grid grid-cols-1 sm:grid-cols-3   p-4 gap-6">
+                    {blogs && blogs.map((blog) => (
+                        <BlogCard key={blog.uId} blogData={blog} deleteCB={deleteCB}  />
+                    ))}
                 </div>
+                {totalPage > 0 &&
+                    <div className="flex justify-center">
+                        <Pagination changePage={changePage} pageNumber={pageNumber} totalPage={totalPage} />
+                    </div>
+                }
+            </div>
+
+            {
+                toast &&
+                <Toast message={toast.message} status={toast.status} />
             }
-        </div>
+        </>
     )
 }
 

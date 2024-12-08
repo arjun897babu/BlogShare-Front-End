@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios, { HttpStatusCode } from "axios";
+import { CustomError } from "../utility/validator-helper";
 
 const { VITE_API_ROUTE, VITE_APP } = import.meta.env;
 
@@ -10,24 +11,23 @@ export const endPoint = {
   singleBlog: (blogId: string) => `/blogs/blog/${blogId}`,
   write: "/blogs/user/blog", //create specif to user
   getUserBlog: "/blogs/user/blog",
-  editBlog: (blogId:string)=>`/blogs/user/${blogId}`, //edit and delete a specif blog
+  editBlog: (blogId: string) => `/blogs/user/${blogId}`, //edit and delete a specif blog
 };
 
 const serverInstance = axios.create({
   withCredentials: true,
   baseURL: VITE_API_ROUTE,
-  timeout:6*1000
+  timeout: 6 * 1000,
 });
 
 const authInstance = axios.create({
   withCredentials: true,
   baseURL: VITE_API_ROUTE,
-  timeout:6*1000
+  timeout: 6 * 1000,
 });
 
 serverInstance.interceptors.request.use(
   function (config) {
-    console.log("req interceptor called");
     const blogshareData = localStorage.getItem(VITE_APP);
     const token = blogshareData ? JSON.parse(blogshareData).token : undefined;
 
@@ -36,7 +36,9 @@ serverInstance.interceptors.request.use(
       return config;
     }
 
-    return Promise.reject(new Error("no token found"));
+    return Promise.reject(
+      new CustomError(HttpStatusCode.Unauthorized, { token: "no token found" })
+    );
   },
   function (error) {
     console.log(error);
@@ -44,4 +46,4 @@ serverInstance.interceptors.request.use(
   }
 );
 
-export  {serverInstance,authInstance};
+export { serverInstance, authInstance };

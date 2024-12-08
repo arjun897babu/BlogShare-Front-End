@@ -1,8 +1,6 @@
 import { AxiosError } from "axios";
 import { ApiError, ErrorObject } from "./types";
-import { ResponseStatus } from "./enum";
-import { ZodSchema } from "zod";
-import { Path, UseFormSetError } from "react-hook-form";
+import { AxiosErrorCode, ResponseStatus } from "./enum";
 
 export const errorMessage = (field: string): string => `${field} is required`;
 export const invalidMessage = (field: string): string => `invalid ${field}`;
@@ -34,13 +32,39 @@ export function isApiError(error: unknown): error is ApiError {
 
 export function handleAxiosError(error: unknown): ApiError {
   if (error instanceof AxiosError) {
-    const { response = undefined } = error;
+    const { response = undefined, code } = error;
+
+    let messge: string;
+    switch (code) {
+      case AxiosErrorCode.timeout:
+        messge = 'Request timed out. Please try again later';
+        break;
+      case AxiosErrorCode.serverError:
+        messge = 'Unable to connect to the server';
+        break;
+      default:
+        messge = response?.data.message;
+        break;
+    }
+
+    console.log(messge,code);
+
     return createApiError(
       error.status,
-      response?.data.message,
+      messge,
       response?.data.status,
       response?.data.error
     );
   }
-  return createApiError()
+  return createApiError();
+}
+
+export class CustomError extends Error {
+  statusCode: number;
+  err: ErrorObject;
+  constructor(statusCode: number, err: ErrorObject) {
+    super();
+    this.statusCode = statusCode;
+    this.err = err;
+  }
 }

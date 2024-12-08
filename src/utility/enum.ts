@@ -7,3 +7,8 @@ export enum Action {
   Edit,
   DELETE,
 }
+
+export enum AxiosErrorCode {
+  timeout = 'ECONNABORTED',
+  serverError = 'ERR_NETWORK'
+}

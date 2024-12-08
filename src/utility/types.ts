@@ -12,7 +12,6 @@ export interface User {
   email: string;
   password: string;
   token: string;
-  theme: string;
   isAuthed: boolean;
   uId: string;
 }
@@ -52,4 +51,9 @@ export interface IGetAllBlogs extends IResponse {
   data: {
     blog: SingleBlog[];
   };
+}
+
+export interface IToast {
+  status: ResponseStatus;
+  message: string;
 }

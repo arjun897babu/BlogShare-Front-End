@@ -7,18 +7,19 @@ import Label from "../../../components/Label"
 import { BlogInitialState } from "./types"
 import ImageUpload from "../../../components/ImageUpload"
 import ErrorDiv from "../../../components/ErrorDiv"
-import  {serverInstance, endPoint } from "../../../service/api"
+import { serverInstance, endPoint } from "../../../service/api"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Blog, IBlogCU } from "../../../utility/types"
 import { ResponseStatus } from "../../../utility/enum"
 import { ButtonLoader } from "../../../components/ButtonLoader"
+import { useUser } from "../../../custom hook/useUser"
 
 const BlogEditor = () => {
-
+    const { showToast } = useUser()
     const location = useLocation();
     const navigate = useNavigate();
     const [blogData, setBlogData] = useState<Blog | null>(null)
-    const { register, handleSubmit, setError, setValue, watch, formState: { errors } } = useZodForm(blogSchema, BlogInitialState)
+    const { register, handleSubmit, setError, setValue, formState: { errors } } = useZodForm(blogSchema, BlogInitialState)
 
     function chaneImage(newFile: File) {
         setValue('file', newFile);
@@ -28,7 +29,7 @@ const BlogEditor = () => {
         setError(key as keyof BlogFormSchemaType, { message })
     }
 
-    const changeError = useErrorObject(changeErrorCB)
+    const handleApiError = useErrorObject(changeErrorCB)
 
     const [loading, setLoading] = useState(false);
 
@@ -47,10 +48,12 @@ const BlogEditor = () => {
             }
 
             if (response.status === ResponseStatus.SUCCESS) {
+                showToast(ResponseStatus.SUCCESS, response.message)
                 navigate('/blogs')
-            }
+            };
+
         } catch (error) {
-            changeError(error)
+            handleApiError(error)
         } finally {
             setLoading(false)
         }
@@ -99,10 +102,10 @@ const BlogEditor = () => {
                         <ImageUpload changeImage={chaneImage}
                             url={blogData?.file && 'url' in blogData.file ? blogData.file.url : undefined}
                         />
-                            {errors && errors.file?.message && <ErrorDiv message={errors.file.message} />}
+                        {errors && errors.file?.message && <ErrorDiv message={errors.file.message} />}
                     </div>
                     <div className="float-right">
-                        <button className="btn  bg-emerald-500 text-white hover:bg-emerald-600 btn-wide uppercase " type="submit">
+                        <button className="btn  bg-emerald-500 text-white hover:bg-emerald-600 xs:btn-wide uppercase " type="submit">
                             {
                                 loading ? <ButtonLoader btnSize="full" loader="progress" />
                                     : !blogData ? 'post' : 'update'
